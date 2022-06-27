@@ -10,7 +10,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
@@ -22,42 +21,51 @@ import java.util.List;
 
 public class UblTrValidator implements Validator {
 
-    private static final String UBL_TR_PATH = "com/nilvera/xmlvalidationjavalin/UBL-TR_Main_Schematron.xsl";
+    private static final String UBL_TR_PATH = "UBL-TR_Main_Schematron.xsl";
+    private static final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    private static final XPathFactory xPathFactory = XPathFactory.newInstance();
+    private static final XPathExpression expr;
+    private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+    private static final DocumentBuilder documentBuilder;
+    private static InputStream xslStream = UblTrValidator.class.getClassLoader().getResourceAsStream(UBL_TR_PATH);
+    private static final StreamSource streamSource;
+    private static final Transformer ublTrMainSchematronValidationTransformer;
+
+    static {
+        try {
+            streamSource = new StreamSource(xslStream);
+            documentBuilder = documentBuilderFactory.newDocumentBuilder();
+            expr = xPathFactory.newXPath().compile("/Errors/Error");
+            documentBuilderFactory.setNamespaceAware(true);
+            ublTrMainSchematronValidationTransformer = transformerFactory.newTransformer(streamSource);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
     @Override
     public XmlValidationModel validate(InputStream inputStream) {
-        boolean isValid = true;
         List<String> errors = new LinkedList<>();
-
         try {
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            StreamSource source = new StreamSource(UblTrValidator.class.getClassLoader().getResourceAsStream(UBL_TR_PATH));
-            Transformer ublTrMainSchematronValidation = transformerFactory.newTransformer(source);
+            xslStream = UblTrValidator.class.getClassLoader().getResourceAsStream(UBL_TR_PATH);
             ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
             StreamResult streamResult = new StreamResult(arrayOutputStream);
-
-            ublTrMainSchematronValidation.transform(new StreamSource(inputStream), streamResult);
+            StreamSource inputStreamSource = new StreamSource(inputStream);
+            ublTrMainSchematronValidationTransformer.transform(inputStreamSource, streamResult);
 
             if (arrayOutputStream.size() > 0) {
-                XPathFactory xpathFactory = XPathFactory.newInstance();
-                XPath xpath = xpathFactory.newXPath();
-                XPathExpression expr = xpath.compile("/Errors/Error");
-                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                factory.setNamespaceAware(true);
-                DocumentBuilder builder = factory.newDocumentBuilder();
-                Document document = builder.parse(new ByteArrayInputStream(arrayOutputStream.toByteArray()));
+                Document document = documentBuilder.parse(new ByteArrayInputStream(arrayOutputStream.toByteArray()));
                 NodeList nodes = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
-
                 for (int i = 0; i < nodes.getLength(); ++i) {
                     errors.add(nodes.item(i).getTextContent());
                 }
-
-                if(errors.size() > 0) isValid = false;
             }
+            xslStream.close();
+            inputStream.close();
         } catch (Exception e) {
-            System.out.println("An exception occurred : " + e.getMessage());
+            return null;
         }
-
-        return new XmlValidationModel(isValid, errors);
+        return new XmlValidationModel(!(errors.size() > 0), errors);
     }
 }
