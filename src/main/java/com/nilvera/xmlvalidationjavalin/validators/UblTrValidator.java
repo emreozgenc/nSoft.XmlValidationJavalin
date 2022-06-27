@@ -1,5 +1,6 @@
 package com.nilvera.xmlvalidationjavalin.validators;
 
+import com.nilvera.xmlvalidationjavalin.models.XmlValidationModel;
 import com.nilvera.xmlvalidationjavalin.models.XmlValidationResultModel;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -21,7 +22,7 @@ import java.util.List;
 
 public class UblTrValidator implements Validator {
 
-    private static final String UBL_TR_PATH = "UBL-TR_Main_Schematron.xsl";
+    private static final String UBL_TR_PATH = "static/document/xsl/UBL-TR_Main_Schematron.xsl";
     private static final TransformerFactory transformerFactory = TransformerFactory.newInstance();
     private static final XPathFactory xPathFactory = XPathFactory.newInstance();
     private static final XPathExpression expr;
@@ -45,7 +46,7 @@ public class UblTrValidator implements Validator {
     }
 
     @Override
-    public XmlValidationResultModel validate(InputStream inputStream) {
+    public XmlValidationModel validate(InputStream inputStream) {
         List<String> errors = new LinkedList<>();
         try {
             xslStream = UblTrValidator.class.getClassLoader().getResourceAsStream(UBL_TR_PATH);
@@ -64,8 +65,11 @@ public class UblTrValidator implements Validator {
             xslStream.close();
             inputStream.close();
         } catch (Exception e) {
-            return null;
+            XmlValidationResultModel resultModel = new XmlValidationResultModel(false, null);
+            return new XmlValidationModel(resultModel, e.getMessage());
         }
-        return new XmlValidationResultModel(!(errors.size() > 0), errors);
+
+        XmlValidationResultModel resultModel = new XmlValidationResultModel(errors.isEmpty(), errors);
+        return new XmlValidationModel(resultModel, null);
     }
 }
