@@ -1,6 +1,7 @@
 package com.nilvera.xmlvalidationjavalin.controllers;
 
-import com.nilvera.xmlvalidationjavalin.models.XmlValidationResultModel;
+import com.nilvera.xmlvalidationjavalin.models.XmlValidationModel;
+import com.nilvera.xmlvalidationjavalin.validators.InvoiceValidator;
 import com.nilvera.xmlvalidationjavalin.validators.UblTrValidator;
 import io.javalin.http.Context;
 import io.javalin.plugin.openapi.annotations.*;
@@ -22,22 +23,70 @@ public class ValidationController {
             description = "The path to validate UBL-TR files",
             fileUploads = @OpenApiFileUpload(name = "xmlFile", description = "The file that you want to validate", required = true),
             responses = {
-                    @OpenApiResponse(status = "200", content = @OpenApiContent(from = XmlValidationResultModel.class)),
-                    @OpenApiResponse(status = "500")
+                    @OpenApiResponse(status = "200", description = "Returns 200 if everything is OK and the file valid", content = @OpenApiContent(from = XmlValidationModel.class)),
+                    @OpenApiResponse(status = "406", description = "Returns 406 when error occurs in the file", content = @OpenApiContent(from = XmlValidationModel.class)),
+                    @OpenApiResponse(status = "500", description = "Server error", content = @OpenApiContent(from = XmlValidationModel.class))
             }
     )
     public void validateUblTrSchematron(Context ctx) throws ExecutionException, InterruptedException {
         InputStream xmlStream = ctx.uploadedFile("xmlFile").getContent();
-        XmlValidationResultModel model = getUblTrFuture(xmlStream).get();
+        XmlValidationModel model = getUblTrSchematronFuture(xmlStream).get();
         ctx.res.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        ctx.json(model);
+
+        if (model.getErrorMessage() != null) {
+            ctx.status(500).json(model);
+            return;
+        }
+
+        if (model.getResult().getIsValid()) {
+            ctx.status(200).json(model);
+        } else {
+            ctx.status(406).json(model);
+        }
     }
 
+    @OpenApi(
+            path = "/validate/schema/invoice",
+            method = HttpMethod.POST,
+            summary = "Invoice validation",
+            description = "The path to validate invoice files",
+            fileUploads = @OpenApiFileUpload(name = "xmlFile", description = "The file that you want to validate", required = true),
+            responses = {
+                    @OpenApiResponse(status = "200", description = "Returns 200 if everything is OK and the file valid", content = @OpenApiContent(from = XmlValidationModel.class)),
+                    @OpenApiResponse(status = "406", description = "Returns 406 when error occurs in the file", content = @OpenApiContent(from = XmlValidationModel.class)),
+                    @OpenApiResponse(status = "500", description = "Server error", content = @OpenApiContent(from = XmlValidationModel.class))
+            }
+    )
+    public void validateInvoiceSchema(Context ctx) throws ExecutionException, InterruptedException {
+        InputStream xmlStream = ctx.uploadedFile("xmlFile").getContent();
+        XmlValidationModel model = getInvoiceSchemaFuture(xmlStream).get();
+        ctx.res.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-    private CompletableFuture<XmlValidationResultModel> getUblTrFuture(InputStream xmlStream) {
-        CompletableFuture<XmlValidationResultModel> future = new CompletableFuture<>();
+        if (model.getErrorMessage() != null) {
+            ctx.status(500).json(model);
+            return;
+        }
+
+        if (model.getResult().getIsValid()) {
+            ctx.status(200).json(model);
+        } else {
+            ctx.status(406).json(model);
+        }
+    }
+
+    private CompletableFuture<XmlValidationModel> getUblTrSchematronFuture(InputStream xmlStream) {
+        CompletableFuture<XmlValidationModel> future = new CompletableFuture<>();
         executorService.execute(() -> {
-            XmlValidationResultModel model = new UblTrValidator().validate(xmlStream);
+            XmlValidationModel model = new UblTrValidator().validate(xmlStream);
+            future.complete(model);
+        });
+        return future;
+    }
+
+    private CompletableFuture<XmlValidationModel> getInvoiceSchemaFuture(InputStream xmlStream) {
+        CompletableFuture<XmlValidationModel> future = new CompletableFuture<>();
+        executorService.execute(() -> {
+            XmlValidationModel model = new InvoiceValidator().validate(xmlStream);
             future.complete(model);
         });
         return future;
