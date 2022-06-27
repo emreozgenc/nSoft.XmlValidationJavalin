@@ -26,7 +26,7 @@ public class ValidationController {
                     @OpenApiResponse(status = "500")
             }
     )
-    public void validateUblTr(Context ctx) throws ExecutionException, InterruptedException {
+    public void validateUblTrSchematron(Context ctx) throws ExecutionException, InterruptedException {
         InputStream xmlStream = ctx.uploadedFile("xmlFile").getContent();
         XmlValidationResultModel model = getUblTrFuture(xmlStream).get();
         ctx.res.setCharacterEncoding(StandardCharsets.UTF_8.name());
