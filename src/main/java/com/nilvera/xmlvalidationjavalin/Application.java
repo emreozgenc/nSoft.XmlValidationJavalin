@@ -27,6 +27,7 @@ public class Application {
         app.get("/health", healthController::index);
 
         app.post("/validate/schematron/ubltr_main", validationController::validateUblTrSchematron);
+        app.post("/validate/schema/invoice", validationController::validateInvoiceSchema);
 
         app.exception(Exception.class, (e, ctx) -> {
             ctx.status(500).result(e.getMessage());
