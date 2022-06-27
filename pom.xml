@@ -26,6 +26,7 @@
               <goal>shade</goal>
             </goals>
             <configuration>
+              <finalName>app</finalName>
               <filters>
                 <filter>
                   <artifact>*:*</artifact>
