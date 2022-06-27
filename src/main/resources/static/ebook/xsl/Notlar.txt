@@ -1,0 +1,34 @@
+------------------------edefter_yevmiye.xsl----------------------------------
+xml:base="file:/C:/Users/erdem/Desktop/e-DefterPaketi12052015/e-DefterPaketi12052015/e-Defter%20Paketi/sch/edefter_yevmiye.sch_xslt_cascade" silindi
+exclude-result-prefixes="#all" eklendi
+
+
+------------------------edefter_yevmiye_with_ds.xsl----------------------------------
+xml:base="file:/C:/Users/erdem/Desktop/e-DefterPaketi12052015/e-DefterPaketi12052015/e-Defter%20Paketi/sch/edefter_yevmiye.sch_xslt_cascade" silindi
+exclude-result-prefixes="#all" eklendi
+
+
+------------------------edefter_kebir.xsl--------------------------------------------
+xml:base="file:/C:/Users/erdem/Desktop/e-DefterPaketi12052015/e-DefterPaketi12052015/e-Defter%20Paketi/sch/edefter_kebir.sch_xslt_cascade" silindi
+exclude-result-prefixes="#all" eklendi
+
+xs:decimal(gl-cor:lineNumberCounter) >= max(preceding-sibling::node()/xs:decimal(gl-cor:lineNumberCounter)) -> Değiştir
+xs:decimal(gl-cor:lineNumberCounter) >= xs:decimal(preceding-sibling::*[gl-cor:lineNumberCounter][1]/gl-cor:lineNumberCounter)
+
+
+
+
+
+
+------------------------edefter_kebir_with_ds.xsl--------------------------------------------
+xml:base="file:/C:/Users/erdem/Desktop/e-DefterPaketi12052015/e-DefterPaketi	12052015/e-Defter%20Paketi/sch/edefter_kebir.sch_xslt_cascade" silindi
+exclude-result-prefixes="#all" eklendi
+
+------------------------edefter_berat.xsl--------------------------------------------
+xml:base="file:/C:/Users/erdem/Desktop/e-DefterPaketi12052015/e-DefterPaketi12052015/e-Defter%20Paketi/sch/edefter_kebir.sch_xslt_cascade" silindi
+exclude-result-prefixes="#all" eklendi
+
+
+------------------------edefter_berat_with_ds.xsl--------------------------------------------
+xml:base="file:/C:/Users/erdem/Desktop/e-DefterPaketi12052015/e-DefterPaketi12052015/e-Defter%20Paketi/sch/edefter_kebir.sch_xslt_cascade" silindi
+exclude-result-prefixes="#all" eklendi

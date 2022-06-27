@@ -1,0 +1,11 @@
+-----------------------------UBL-TR_Main_Schematron.xsl--------------------------------------------------------
+xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                exclude-result-prefixes="xsl oa xsi saxon sh ef inv apr desp recp cac cbc ext ds xs xades hr"
+
+
+
+
+
+-----------------------------earsiv_schematron.xsl-------------------------------------------------------------
+Errors, Error Tan�m� yap�ld�.
+exclude-result-prefixes="schold iso xhtml xs earsiv"
