@@ -1,6 +1,6 @@
 package com.nilvera.xmlvalidationjavalin.controllers;
 
-import com.nilvera.xmlvalidationjavalin.models.XmlValidationModel;
+import com.nilvera.xmlvalidationjavalin.models.XmlValidationResultModel;
 import com.nilvera.xmlvalidationjavalin.validators.UblTrValidator;
 import io.javalin.http.Context;
 import io.javalin.plugin.openapi.annotations.*;
@@ -22,22 +22,22 @@ public class ValidationController {
             description = "The path to validate UBL-TR files",
             fileUploads = @OpenApiFileUpload(name = "xmlFile", description = "The file that you want to validate", required = true),
             responses = {
-                    @OpenApiResponse(status = "200", content = @OpenApiContent(from = XmlValidationModel.class)),
+                    @OpenApiResponse(status = "200", content = @OpenApiContent(from = XmlValidationResultModel.class)),
                     @OpenApiResponse(status = "500")
             }
     )
     public void validateUblTr(Context ctx) throws ExecutionException, InterruptedException {
         InputStream xmlStream = ctx.uploadedFile("xmlFile").getContent();
-        XmlValidationModel model = getUblTrFuture(xmlStream).get();
+        XmlValidationResultModel model = getUblTrFuture(xmlStream).get();
         ctx.res.setCharacterEncoding(StandardCharsets.UTF_8.name());
         ctx.json(model);
     }
 
 
-    private CompletableFuture<XmlValidationModel> getUblTrFuture(InputStream xmlStream) {
-        CompletableFuture<XmlValidationModel> future = new CompletableFuture<>();
+    private CompletableFuture<XmlValidationResultModel> getUblTrFuture(InputStream xmlStream) {
+        CompletableFuture<XmlValidationResultModel> future = new CompletableFuture<>();
         executorService.execute(() -> {
-            XmlValidationModel model = new UblTrValidator().validate(xmlStream);
+            XmlValidationResultModel model = new UblTrValidator().validate(xmlStream);
             future.complete(model);
         });
         return future;

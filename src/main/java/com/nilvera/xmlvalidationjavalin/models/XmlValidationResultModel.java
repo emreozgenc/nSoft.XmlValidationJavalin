@@ -2,16 +2,16 @@ package com.nilvera.xmlvalidationjavalin.models;
 
 import java.util.List;
 
-public class XmlValidationModel {
+public class XmlValidationResultModel {
     private final boolean isValid;
     private final List<String> errors;
 
-    public XmlValidationModel(boolean isValid, List<String> errors) {
+    public XmlValidationResultModel(boolean isValid, List<String> errors) {
         this.isValid = isValid;
         this.errors = errors;
     }
 
-    public XmlValidationModel(boolean isValid) {
+    public XmlValidationResultModel(boolean isValid) {
         this.isValid = isValid;
         errors = null;
     }

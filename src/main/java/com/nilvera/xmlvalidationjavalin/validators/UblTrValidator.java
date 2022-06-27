@@ -1,6 +1,6 @@
 package com.nilvera.xmlvalidationjavalin.validators;
 
-import com.nilvera.xmlvalidationjavalin.models.XmlValidationModel;
+import com.nilvera.xmlvalidationjavalin.models.XmlValidationResultModel;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -45,7 +45,7 @@ public class UblTrValidator implements Validator {
     }
 
     @Override
-    public XmlValidationModel validate(InputStream inputStream) {
+    public XmlValidationResultModel validate(InputStream inputStream) {
         List<String> errors = new LinkedList<>();
         try {
             xslStream = UblTrValidator.class.getClassLoader().getResourceAsStream(UBL_TR_PATH);
@@ -66,6 +66,6 @@ public class UblTrValidator implements Validator {
         } catch (Exception e) {
             return null;
         }
-        return new XmlValidationModel(!(errors.size() > 0), errors);
+        return new XmlValidationResultModel(!(errors.size() > 0), errors);
     }
 }

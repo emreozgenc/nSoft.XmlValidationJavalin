@@ -1,9 +1,9 @@
 package com.nilvera.xmlvalidationjavalin.validators;
 
-import com.nilvera.xmlvalidationjavalin.models.XmlValidationModel;
+import com.nilvera.xmlvalidationjavalin.models.XmlValidationResultModel;
 
 import java.io.InputStream;
 
 public interface Validator {
-    XmlValidationModel validate(InputStream inputStream) throws Exception;
+    XmlValidationResultModel validate(InputStream inputStream) throws Exception;
 }
