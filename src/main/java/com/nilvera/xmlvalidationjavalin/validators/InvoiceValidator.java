@@ -8,6 +8,8 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,29 +18,46 @@ public class InvoiceValidator implements Validator {
 
     private static final String SCHEMA_LANGUAGE = "http://www.w3.org/2001/XMLSchema";
     private static final String XSD_PATH = "static/document/xsd/maindoc/UBL-Invoice-2.1.xsd";
-    private static InputStream xsdFile = UblTrValidator.class.getResourceAsStream(XSD_PATH);
     private static SchemaFactory schemaFactory = SchemaFactory.newInstance(SCHEMA_LANGUAGE);
+    private static final File xsdFile = new File(XSD_PATH);
+    private static javax.xml.validation.Validator validator;
+
+    static {
+        try {
+            validator = schemaFactory.newSchema(new StreamSource(xsdFile)).newValidator();
+        } catch (SAXException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 
     public XmlValidationModel validate(InputStream inputStream) {
-        xsdFile = UblTrValidator.class.getResourceAsStream(XSD_PATH);
+        XmlValidationResultModel resultModel = new XmlValidationResultModel();
+        XmlValidationModel model = new XmlValidationModel();
+        model.setResult(resultModel);
+        model.getResult().setIsValid(false);
         List<String> errors = new LinkedList<>();
         try {
-            xsdFile = UblTrValidator.class.getResourceAsStream(XSD_PATH);
             StreamSource schemaValidationStreamSource = new StreamSource(inputStream);
             ByteArrayOutputStream schemaValidationByteArrayOutputStream = new ByteArrayOutputStream();
             StreamResult schemaValidationStreamResult = new StreamResult(schemaValidationByteArrayOutputStream);
-
             try {
-                javax.xml.validation.Validator validator = schemaFactory.newSchema(new StreamSource(xsdFile)).newValidator();
                 validator.validate(schemaValidationStreamSource, schemaValidationStreamResult);
             } catch (SAXException e) {
                 errors.add(e.getMessage());
             }
 
-            XmlValidationResultModel resultModel = new XmlValidationResultModel(errors.isEmpty(), errors);
-            return new XmlValidationModel(resultModel, null);
+            resultModel.setIsValid(errors.isEmpty());
+            resultModel.setErrors(errors);
+            model.setErrorMessage(null);
+            return model;
         } catch (Exception e) {
-            return new XmlValidationModel(null, e.getMessage());
+            model.setResult(null);
+            model.setErrorMessage(e.getMessage());
+            return model;
         }
+    }
+
+    private String getAbsolutePath(String fileName) throws IOException {
+        return Thread.currentThread().getContextClassLoader().getResource(fileName).getFile();
     }
 }

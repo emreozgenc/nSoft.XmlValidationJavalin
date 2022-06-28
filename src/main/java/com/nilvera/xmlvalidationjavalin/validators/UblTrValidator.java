@@ -16,6 +16,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,13 +29,13 @@ public class UblTrValidator implements Validator {
     private static final XPathExpression expr;
     private static final DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
     private static final DocumentBuilder documentBuilder;
-    private static InputStream xslStream = UblTrValidator.class.getClassLoader().getResourceAsStream(UBL_TR_PATH);
+    private static final File xslFile = new File(UBL_TR_PATH);
     private static final StreamSource streamSource;
     private static final Transformer ublTrMainSchematronValidationTransformer;
 
     static {
         try {
-            streamSource = new StreamSource(xslStream);
+            streamSource = new StreamSource(xslFile);
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
             expr = xPathFactory.newXPath().compile("/Errors/Error");
             documentBuilderFactory.setNamespaceAware(true);
@@ -49,7 +50,6 @@ public class UblTrValidator implements Validator {
     public XmlValidationModel validate(InputStream inputStream) {
         List<String> errors = new LinkedList<>();
         try {
-            xslStream = UblTrValidator.class.getClassLoader().getResourceAsStream(UBL_TR_PATH);
             ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
             StreamResult streamResult = new StreamResult(arrayOutputStream);
             StreamSource inputStreamSource = new StreamSource(inputStream);
@@ -62,7 +62,6 @@ public class UblTrValidator implements Validator {
                     errors.add(nodes.item(i).getTextContent());
                 }
             }
-            xslStream.close();
             inputStream.close();
         } catch (Exception e) {
             XmlValidationResultModel resultModel = new XmlValidationResultModel(false, null);
