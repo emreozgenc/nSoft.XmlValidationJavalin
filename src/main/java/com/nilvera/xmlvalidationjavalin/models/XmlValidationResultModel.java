@@ -3,12 +3,16 @@ package com.nilvera.xmlvalidationjavalin.models;
 import java.util.List;
 
 public class XmlValidationResultModel {
-    private final boolean isValid;
-    private final List<String> errors;
+    private boolean isValid;
+    private List<String> errors;
 
     public XmlValidationResultModel(boolean isValid, List<String> errors) {
         this.isValid = isValid;
         this.errors = errors;
+    }
+
+    public XmlValidationResultModel() {
+
     }
 
     public XmlValidationResultModel(boolean isValid) {
@@ -22,5 +26,13 @@ public class XmlValidationResultModel {
 
     public List<String> getErrors() {
         return errors;
+    }
+
+    public void setIsValid(boolean valid) {
+        isValid = valid;
+    }
+
+    public void setErrors(List<String> errors) {
+        this.errors = errors;
     }
 }
