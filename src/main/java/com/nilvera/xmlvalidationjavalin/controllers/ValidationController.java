@@ -21,15 +21,14 @@ public class ValidationController {
             method = HttpMethod.POST,
             summary = "UBL-TR validation",
             description = "The path to validate UBL-TR files",
-            fileUploads = @OpenApiFileUpload(name = "xmlFile", description = "The file that you want to validate", required = true),
+            fileUploads = @OpenApiFileUpload(name = "Source", description = "The file that you want to validate", required = true),
             responses = {
-                    @OpenApiResponse(status = "200", description = "Returns 200 if everything is OK and the file valid", content = @OpenApiContent(from = XmlValidationModel.class)),
-                    @OpenApiResponse(status = "406", description = "Returns 406 when error occurs in the file", content = @OpenApiContent(from = XmlValidationModel.class)),
+                    @OpenApiResponse(status = "200", description = "Returns 200 if everything is OK", content = @OpenApiContent(from = XmlValidationModel.class)),
                     @OpenApiResponse(status = "500", description = "Server error", content = @OpenApiContent(from = XmlValidationModel.class))
             }
     )
     public void validateUblTrSchematron(Context ctx) throws ExecutionException, InterruptedException {
-        InputStream xmlStream = ctx.uploadedFile("xmlFile").getContent();
+        InputStream xmlStream = ctx.uploadedFile("Source").getContent();
         XmlValidationModel model = getUblTrSchematronFuture(xmlStream).get();
         ctx.res.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
@@ -38,11 +37,7 @@ public class ValidationController {
             return;
         }
 
-        if (model.getResult().getIsValid()) {
-            ctx.status(200).json(model);
-        } else {
-            ctx.status(406).json(model);
-        }
+        ctx.status(200).json(model);
     }
 
     @OpenApi(
@@ -50,15 +45,14 @@ public class ValidationController {
             method = HttpMethod.POST,
             summary = "Invoice validation",
             description = "The path to validate invoice files",
-            fileUploads = @OpenApiFileUpload(name = "xmlFile", description = "The file that you want to validate", required = true),
+            fileUploads = @OpenApiFileUpload(name = "Source", description = "The file that you want to validate", required = true),
             responses = {
-                    @OpenApiResponse(status = "200", description = "Returns 200 if everything is OK and the file valid", content = @OpenApiContent(from = XmlValidationModel.class)),
-                    @OpenApiResponse(status = "406", description = "Returns 406 when error occurs in the file", content = @OpenApiContent(from = XmlValidationModel.class)),
+                    @OpenApiResponse(status = "200", description = "Returns 200 if everything is OK", content = @OpenApiContent(from = XmlValidationModel.class)),
                     @OpenApiResponse(status = "500", description = "Server error", content = @OpenApiContent(from = XmlValidationModel.class))
             }
     )
     public void validateInvoiceSchema(Context ctx) throws ExecutionException, InterruptedException {
-        InputStream xmlStream = ctx.uploadedFile("xmlFile").getContent();
+        InputStream xmlStream = ctx.uploadedFile("Source").getContent();
         XmlValidationModel model = getInvoiceSchemaFuture(xmlStream).get();
         ctx.res.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
@@ -67,11 +61,7 @@ public class ValidationController {
             return;
         }
 
-        if (model.getResult().getIsValid()) {
-            ctx.status(200).json(model);
-        } else {
-            ctx.status(406).json(model);
-        }
+        ctx.status(200).json(model);
     }
 
     private CompletableFuture<XmlValidationModel> getUblTrSchematronFuture(InputStream xmlStream) {
