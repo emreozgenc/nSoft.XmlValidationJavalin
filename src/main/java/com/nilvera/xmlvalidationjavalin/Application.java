@@ -28,6 +28,7 @@ public class Application {
 
         app.post("/validate/schematron/ubltr_main", validationController::validateUblTrSchematron);
         app.post("/validate/schema/invoice", validationController::validateInvoiceSchema);
+        app.post("/validate/schema/despatch_advice", validationController::validateDespatchSchema);
 
         app.exception(Exception.class, (e, ctx) -> {
             ctx.status(500).result(e.getMessage());
